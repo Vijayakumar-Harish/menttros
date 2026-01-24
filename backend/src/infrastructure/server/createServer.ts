@@ -1,4 +1,5 @@
 import Fastify from "fastify";
+import { userRoutes } from "../../app/modules/user/user.routes";
 
 export function createServer() {
   const app = Fastify({
@@ -11,6 +12,6 @@ export function createServer() {
       service: "menttros-backend",
     };
   });
-
+  app.register(userRoutes, { prefix: "/api" });
   return app;
 }

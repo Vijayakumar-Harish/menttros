@@ -5,6 +5,11 @@ export function createServer() {
   const app = Fastify({
     logger: true,
   });
+app.addHook("onRequest", async (request) => {
+  // TEMPORARY: placeholder user
+  // Tomorrow this will be replaced by JWT auth
+  request.user = null;
+});
 
   app.get("/health", async () => {
     return {
@@ -12,6 +17,6 @@ export function createServer() {
       service: "menttros-backend",
     };
   });
-  app.register(userRoutes, { prefix: "/api" });
+    app.register(userRoutes, { prefix: "/api" });
   return app;
 }

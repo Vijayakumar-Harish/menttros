@@ -1,11 +1,13 @@
 import { FastifyInstance } from "fastify";
 
+
+import { UserService } from "./user.service";
+
+const userService = new UserService();
+
 export async function userRoutes(app: FastifyInstance) {
   app.get("/users/me", async () => {
-    return {
-      id: "demo-id",
-      name: "Demo User",
-      role: "LEARNER",
-    };
+    const user = await userService.getOrCreateDemoUser();
+    return user;
   });
 }

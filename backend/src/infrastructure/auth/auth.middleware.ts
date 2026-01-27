@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { verifyAccessToken } from "./jwt";
 import { UserRepository } from "../db/repositories/user.repository";
+import { toDomainUser } from "../db/mappers/user.mapper";
 
 const userRepo = new UserRepository();
 
@@ -24,7 +25,7 @@ export async function authenticate(
       return reply.status(401).send({ message: "User not found" });
     }
 
-    request.user = user;
+    request.user = toDomainUser(user);
   } catch {
     return reply.status(401).send({ message: "Invalid token" });
   }

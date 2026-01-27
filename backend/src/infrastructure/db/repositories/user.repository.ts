@@ -8,7 +8,18 @@ export class UserRepository {
     });
   }
 
-  async create(data: { email: string; name: string; role: UserRole }) {
+  async findByEmail(email: string) {
+    return prisma.user.findUnique({
+      where: { email },
+    });
+  }
+
+  async create(data: {
+    email: string;
+    name: string;
+    password: string;
+    role: UserRole;
+  }) {
     return prisma.user.create({
       data,
     });

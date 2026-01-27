@@ -1,3 +1,4 @@
+import { hashPassword } from "../../../infrastructure/auth/password";
 import { UserRepository } from "../../../infrastructure/db/repositories/user.repository";
 import { UserRole } from "@prisma/client";
 
@@ -13,7 +14,9 @@ export class UserService {
     return userRepo.create({
       email: "demo@menttros.dev",
       name: "Demo User",
+      password: await hashPassword("demo123"),
       role: UserRole.LEARNER,
     });
+
   }
 }

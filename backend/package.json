@@ -9,11 +9,12 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@prisma/config": "^7.3.0",
+    "@prisma/client": "^6.19.2",
     "bcrypt": "^6.0.0",
     "dotenv": "^17.2.3",
     "fastify": "^4.26.2",
-    "jsonwebtoken": "^9.0.3"
+    "jsonwebtoken": "^9.0.3",
+    "prisma": "^6.19.2"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",

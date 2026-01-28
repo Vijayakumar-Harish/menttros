@@ -26,4 +26,23 @@ export async function skillRoutes(app: FastifyInstance) {
       });
     },
   );
+
+  app.get("/skills/:skillId/mentors", async (request) => {
+    const { skillId } = request.params as any;
+
+    return prisma.mentorSkill.findMany({
+      where: { skillId },
+      include: {
+        mentor: { select: { id: true, name: true } },
+      },
+    });
+  });
+
+  app.get("/me/skills", { preHandler: authenticate }, async (request) => {
+    return prisma.learnerSkill.findMany({
+      where: { learnerId: request.user!.id },
+      include: { skill: true },
+    });
+  });
+
 }

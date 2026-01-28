@@ -16,8 +16,10 @@ model User {
   role      UserRole
   createdAt DateTime @default(now())
 
-  mentorSkills MentorSkill[] @relation("MentorToSkills")
+  mentorSkills  MentorSkill[]  @relation("MentorToSkills")
+  learnerSkills LearnerSkill[] @relation("LearnerToSkills")
 }
+
 
 
 model Skill {
@@ -25,8 +27,10 @@ model Skill {
   name        String
   description String
 
-  mentorSkills MentorSkill[] @relation("SkillToMentors")
+  mentorSkills  MentorSkill[]  @relation("SkillToMentors")
+  learnerSkills LearnerSkill[] @relation("SkillToLearners")
 }
+
 
 enum UserRole {
   LEARNER
@@ -43,5 +47,17 @@ model MentorSkill {
   skill     Skill @relation("SkillToMentors", fields: [skillId], references: [id])
 
   @@unique([mentorId, skillId])
+}
+
+model LearnerSkill {
+  id         String @id @default(uuid())
+  learnerId  String
+  skillId    String
+  level      Int    @default(1)
+
+  learner    User  @relation("LearnerToSkills", fields: [learnerId], references: [id])
+  skill      Skill @relation("SkillToLearners", fields: [skillId], references: [id])
+
+  @@unique([learnerId, skillId])
 }
 

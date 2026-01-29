@@ -39,6 +39,25 @@ export async function proofRoutes(app: FastifyInstance) {
     async (request) => {
       const { proofId } = request.params as any;
       const { status } = request.body as any;
+      const proof = await prisma.proofOfWork.findUnique({
+        where: { id: proofId },
+        include: {
+          learnerSkill: {
+            include: { skill: true },
+          },
+        },
+      });
+
+      const teachesSkill = await prisma.mentorSkill.findFirst({
+        where: {
+          mentorId: request.user!.id,
+          skillId: proof!.learnerSkill.skillId,
+        },
+      });
+
+      if (!teachesSkill) {
+        return { message: "Not authorized" };
+      }
 
       return prisma.proofOfWork.update({
         where: { id: proofId },

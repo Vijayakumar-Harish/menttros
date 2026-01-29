@@ -17,7 +17,17 @@ export async function skillRoutes(app: FastifyInstance) {
     { preHandler: authenticate },
     async (request) => {
       const { skillId } = request.params as any;
-
+      const existing = await prisma.learnerSkill.findUnique({
+        where: {
+          learnerId_skillId: {
+            learnerId: request.user!.id,
+            skillId,
+          },
+        },
+      });
+      if (existing) {
+        return { message: "Already enrolled in this skill" };
+      }
       return prisma.learnerSkill.create({
         data: {
           learnerId: request.user!.id,

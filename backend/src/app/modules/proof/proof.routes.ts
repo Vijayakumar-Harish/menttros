@@ -3,6 +3,7 @@ import { prisma } from "../../../infrastructure/db/prisma";
 import { authenticate } from "../../../infrastructure/auth/auth.middleware";
 import { authorize } from "../../auth/authorize";
 import { UserRole } from "@prisma/client";
+import { levelUpIfEligible } from "../../services/skill-progress.service";
 
 export async function proofRoutes(app: FastifyInstance) {
   app.post(
@@ -59,6 +60,9 @@ export async function proofRoutes(app: FastifyInstance) {
         return { message: "Not authorized" };
       }
 
+      if(status === "APPROVED") {
+        await levelUpIfEligible(proof!.learnerSkillId);
+      }
       return prisma.proofOfWork.update({
         where: { id: proofId },
         data: { status },

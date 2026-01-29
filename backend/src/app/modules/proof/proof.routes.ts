@@ -38,4 +38,24 @@ export async function proofRoutes(app: FastifyInstance) {
       });
     },
   );
+  app.get(
+    "/mentor/proofs",
+    {
+      preHandler: [authenticate, authorize([UserRole.MENTOR])],
+    },
+    async () => {
+      return prisma.proofOfWork.findMany({
+        where: { status: "PENDING" },
+        include: {
+          learnerSkill: {
+            include: {
+              learner: { select: { id: true, name: true } },
+              skill: true,
+            },
+          },
+        },
+      });
+    },
+  );
+
 }

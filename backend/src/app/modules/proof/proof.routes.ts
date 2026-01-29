@@ -11,7 +11,15 @@ export async function proofRoutes(app: FastifyInstance) {
     async (request) => {
       const { learnerSkillId } = request.params as any;
       const { title, description, url } = request.body as any;
-
+      const pending = await prisma.proofOfWork.findFirst({
+        where: {
+          learnerSkillId,
+          status: "PENDING",
+        },
+      });
+      if (pending) {
+        return { message: "Previous proof still under review" };
+      }
       return prisma.proofOfWork.create({
         data: {
           learnerSkillId,
@@ -57,5 +65,4 @@ export async function proofRoutes(app: FastifyInstance) {
       });
     },
   );
-
 }

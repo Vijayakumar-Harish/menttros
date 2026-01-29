@@ -21,4 +21,24 @@ export async function mentorRoutes(app: FastifyInstance) {
       });
     },
   );
+
+  app.get(
+    "/mentor/learners",
+    { preHandler: [authenticate, authorize([UserRole.MENTOR])] },
+    async (request) => {
+      return prisma.learnerSkill.findMany({
+        where: {
+          skill: {
+            mentorSkills: {
+              some: { mentorId: request.user!.id },
+            },
+          },
+        },
+        include: {
+          learner: { select: { id: true, name: true } },
+          skill: true,
+        },
+      });
+    },
+  );
 }

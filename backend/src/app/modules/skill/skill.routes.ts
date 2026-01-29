@@ -45,4 +45,13 @@ export async function skillRoutes(app: FastifyInstance) {
     });
   });
 
+  app.get("/me/learning", { preHandler: authenticate }, async (request) => {
+    return prisma.learnerSkill.findMany({
+      where: { learnerId: request.user!.id },
+      include: {
+        skill: true,
+        proofs: true,
+      },
+    });
+  });
 }

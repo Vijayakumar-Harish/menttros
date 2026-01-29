@@ -23,6 +23,14 @@ MenttrOS solves this by:
 - Proof over certificates
 - Systems over shortcuts
 
+## Core Concepts
+
+- Learners enroll in skills
+- Mentors teach skills
+- Learners submit proof of work
+- Mentors review and approve
+- Skill level increases based on validated proof
+
 ## 🧱 Planned Modules
 
 - Skill Graph Engine

@@ -4,6 +4,7 @@ import { authenticate } from "../../../infrastructure/auth/auth.middleware";
 import { authorize } from "../../auth/authorize";
 import { UserRole } from "@prisma/client";
 import { levelUpIfEligible } from "../../services/skill-progress.service";
+import { ProofStatus } from "../../../domain/enums/ProofStatus";
 
 export async function proofRoutes(app: FastifyInstance) {
   app.post(
@@ -70,7 +71,7 @@ export async function proofRoutes(app: FastifyInstance) {
         return reply.status(403).send({ message: "Not authorized" });
       }
 
-      if (status === "APPROVED") {
+      if (status === ProofStatus.APPROVED) {
         await levelUpIfEligible(proof!.learnerSkillId);
       }
       return prisma.proofOfWork.update({

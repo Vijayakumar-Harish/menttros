@@ -9,9 +9,15 @@ export async function proofRoutes(app: FastifyInstance) {
   app.post(
     "/skills/:learnerSkillId/proof",
     { preHandler: authenticate },
-    async (request) => {
+    async (request, reply: FastifyReply) => {
       const { learnerSkillId } = request.params as any;
       const { title, description, url } = request.body as any;
+      if (!title || !description) {
+        return reply.status(400).send({
+          message: "Title and description are required",
+        });
+      }
+
       const pending = await prisma.proofOfWork.findFirst({
         where: {
           learnerSkillId,

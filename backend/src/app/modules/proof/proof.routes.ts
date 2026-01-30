@@ -46,7 +46,7 @@ export async function proofRoutes(app: FastifyInstance) {
     },
     async (request, reply:FastifyReply) => {
       const { proofId } = request.params as any;
-      const { status } = request.body as any;
+      const { status, feedback } = request.body as any;
 
       const proof = await prisma.proofOfWork.findUnique({
         where: { id: proofId },
@@ -76,7 +76,7 @@ export async function proofRoutes(app: FastifyInstance) {
       }
       return prisma.proofOfWork.update({
         where: { id: proofId },
-        data: { status },
+        data: { status, description: feedback ?? proof.description },
       });
     },
   );

@@ -31,6 +31,14 @@ MenttrOS solves this by:
 - Mentors review and approve
 - Skill level increases based on validated proof
 
+## Learning Flow
+
+1. Learner enrolls in a skill
+2. Learner submits proof of work
+3. Mentor reviews and gives feedback
+4. Skill level increases on approval
+5. Learner repeats until mastery
+
 ## 🧱 Planned Modules
 
 - Skill Graph Engine

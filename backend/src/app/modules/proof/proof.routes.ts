@@ -102,4 +102,17 @@ export async function proofRoutes(app: FastifyInstance) {
       });
     },
   );
+  app.get(
+    "/skills/:learnerSkillId/proofs",
+    { preHandler: authenticate },
+    async (request) => {
+      const { learnerSkillId } = request.params as any;
+
+      return prisma.proofOfWork.findMany({
+        where: { learnerSkillId },
+        orderBy: { createdAt: "desc" },
+      });
+    },
+  );
+
 }

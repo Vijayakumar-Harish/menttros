@@ -59,7 +59,11 @@ export async function proofRoutes(app: FastifyInstance) {
       if (!proof) {
         return reply.status(404).send({ message: "Proof not found" });
       }
-
+      if(proof.learnerSkill.learnerId === request.user!.id) {
+        return reply.status(403).send({
+          message: "You cannot review your own proof",
+        });
+      }
       const teachesSkill = await prisma.mentorSkill.findFirst({
         where: {
           mentorId: request.user!.id,

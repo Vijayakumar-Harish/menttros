@@ -28,7 +28,7 @@ export async function proofRoutes(app: FastifyInstance) {
       if (pending) {
         return { message: "Previous proof still under review" };
       }
-      return prisma.proofOfWork.create({
+      const data = prisma.proofOfWork.create({
         data: {
           learnerSkillId,
           title,
@@ -36,6 +36,10 @@ export async function proofRoutes(app: FastifyInstance) {
           url,
         },
       });
+      return {
+        success: true,
+        data,
+      }
     },
   );
 
@@ -78,10 +82,14 @@ export async function proofRoutes(app: FastifyInstance) {
       if (status === ProofStatus.APPROVED) {
         await levelUpIfEligible(proof!.learnerSkillId);
       }
-      return prisma.proofOfWork.update({
+      const data = await prisma.proofOfWork.update({
         where: { id: proofId },
         data: { status, description: feedback ?? proof.description },
       });
+      return {
+        success: true,
+        data,
+      }
     },
   );
   app.get(

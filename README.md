@@ -6,6 +6,17 @@ build real skills, track meaningful progress, and achieve career clarity.
 This is not a traditional LMS.
 This is a system for structured learning, mentorship, and proof-of-work.
 
+## MenttrOS Vision
+
+MenttrOS is a proof-driven mentorship platform where:
+
+- Skills are learned through practice
+- Progress is validated by mentors
+- Advancement is earned, not assumed
+- Feedback is central to growth
+
+This system is designed to scale from individuals to institutions.
+
 ## 🌱 Why MenttrOS?
 
 Learning today is broken.

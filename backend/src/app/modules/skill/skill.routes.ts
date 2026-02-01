@@ -1,6 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { prisma } from "../../../infrastructure/db/prisma";
 import { authenticate } from "../../../infrastructure/auth/auth.middleware";
+import { calculateProgress } from "../../services/skill-progress.service";
 
 export async function skillRoutes(app: FastifyInstance) {
   app.post("/skills", async (req) => {
@@ -56,12 +57,16 @@ export async function skillRoutes(app: FastifyInstance) {
   });
 
   app.get("/me/learning", { preHandler: authenticate }, async (request) => {
-    return prisma.learnerSkill.findMany({
+    const learnerSkills = await prisma.learnerSkill.findMany({
       where: { learnerId: request.user!.id },
       include: {
         skill: true,
         proofs: true,
       },
     });
+    return learnerSkills.map((ls) => ({
+      ...ls,
+      progress: calculateProgress(ls.level),
+    }));
   });
 }

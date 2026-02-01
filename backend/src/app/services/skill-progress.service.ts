@@ -1,5 +1,6 @@
 import { prisma } from "../../infrastructure/db/prisma";
 import { canLevelUp } from "../../domain/value-objects/SkillLevel";
+import { MAX_SKILL_LEVEL } from "../../domain/value-objects/SkillLevel";
 
 export async function levelUpIfEligible(learnerSkillId: string) {
   const learnerSkill = await prisma.learnerSkill.findUnique({
@@ -14,4 +15,8 @@ export async function levelUpIfEligible(learnerSkillId: string) {
       data: { level: learnerSkill.level + 1 },
     });
   }
+}
+
+export function calculateProgress(level: number): number {
+  return Math.round((level / MAX_SKILL_LEVEL) * 100);
 }

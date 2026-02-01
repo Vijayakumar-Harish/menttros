@@ -19,6 +19,15 @@ export async function proofRoutes(app: FastifyInstance) {
         });
       }
 
+      const learnerSkill = await prisma.learnerSkill.findUnique({
+        where: { id: learnerSkillId },
+      });
+
+      if (!learnerSkill || learnerSkill.learnerId !== request.user!.id) {
+        return reply.status(403).send({
+          message: "You are not allowed to submit proof for this skill",
+        });
+      }
       const pending = await prisma.proofOfWork.findFirst({
         where: {
           learnerSkillId,
@@ -39,7 +48,7 @@ export async function proofRoutes(app: FastifyInstance) {
       return {
         success: true,
         data,
-      }
+      };
     },
   );
 
@@ -48,7 +57,7 @@ export async function proofRoutes(app: FastifyInstance) {
     {
       preHandler: [authenticate, authorize([UserRole.MENTOR])],
     },
-    async (request, reply:FastifyReply) => {
+    async (request, reply: FastifyReply) => {
       const { proofId } = request.params as any;
       const { status, feedback } = request.body as any;
 
@@ -63,7 +72,7 @@ export async function proofRoutes(app: FastifyInstance) {
       if (!proof) {
         return reply.status(404).send({ message: "Proof not found" });
       }
-      if(proof.learnerSkill.learnerId === request.user!.id) {
+      if (proof.learnerSkill.learnerId === request.user!.id) {
         return reply.status(403).send({
           message: "You cannot review your own proof",
         });
@@ -89,7 +98,7 @@ export async function proofRoutes(app: FastifyInstance) {
       return {
         success: true,
         data,
-      }
+      };
     },
   );
   app.get(
@@ -126,5 +135,4 @@ export async function proofRoutes(app: FastifyInstance) {
       });
     },
   );
-
 }

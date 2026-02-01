@@ -135,4 +135,35 @@ export async function proofRoutes(app: FastifyInstance) {
       });
     },
   );
+
+  app.get(
+    "/mentor/learner-skills/:learnerSkillId/proofs",
+    { preHandler: [authenticate, authorize([UserRole.MENTOR])] },
+    async (request, reply) => {
+      const { learnerSkillId } = request.params as any;
+
+      const learnerSkill = await prisma.learnerSkill.findUnique({
+        where: { id: learnerSkillId },
+        include: {
+          skill: {
+            include: {
+              mentorSkills: {
+                where: { mentorId: request.user!.id },
+              },
+            },
+          },
+        },
+      });
+
+      if (!learnerSkill || learnerSkill.skill.mentorSkills.length === 0) {
+        return reply.status(403).send({ message: "Not authorized" });
+      }
+
+      return prisma.proofOfWork.findMany({
+        where: { learnerSkillId },
+        orderBy: { createdAt: "desc" },
+      });
+    },
+  );
+
 }

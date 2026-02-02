@@ -26,4 +26,19 @@ export async function notificationRoutes(app: FastifyInstance) {
       });
     },
   );
+
+  app.patch(
+    "/me/notifications/read-all",
+    { preHandler: authenticate },
+    async (request) => {
+      return prisma.notification.updateMany({
+        where: {
+          userId: request.user!.id,
+          read: false,
+        },
+        data: { read: true },
+      });
+    },
+  );
+
 }

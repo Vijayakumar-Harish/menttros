@@ -27,6 +27,15 @@ MenttrOS solves this by:
 - Making mentorship structured and scalable
 - Turning learning into real, reviewable work
 
+## API Overview
+
+- Auth: `/auth/*`
+- Skills: `/skills`, `/me/learning`
+- Proofs: `/skills/:id/proof`, `/mentor/proofs`
+- Notifications: `/me/notifications`
+
+All APIs are secured and role-aware.
+
 ## 🧠 Core Principles
 
 - Learn by doing

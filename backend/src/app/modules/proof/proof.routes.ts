@@ -109,6 +109,11 @@ export async function proofRoutes(app: FastifyInstance) {
         where: { id: proofId },
         data: { status, description: feedback ?? proof.description },
       });
+      await notifyUser(
+        proof.learnerSkill.learnerId,
+        `Proof ${status}`,
+        "Your proof has been reviewed by the mentor"
+      );
       return {
         success: true,
         data,

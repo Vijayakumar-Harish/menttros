@@ -5,6 +5,7 @@ import { authorize } from "../../auth/authorize";
 import { UserRole } from "@prisma/client";
 import { levelUpIfEligible } from "../../services/skill-progress.service";
 import { ProofStatus } from "../../../domain/enums/ProofStatus";
+import { notifyUser } from "../../services/notification.service";
 
 export async function proofRoutes(app: FastifyInstance) {
   app.post(
@@ -45,6 +46,19 @@ export async function proofRoutes(app: FastifyInstance) {
           url,
         },
       });
+      const mentorSkills = await prisma.mentorSkill.findMany({
+        where: {
+          skillId: learnerSkill.skillId,
+        },
+      });
+
+      for(const ms of mentorSkills) {
+        await notifyUser(
+          ms.mentorId,
+          "New proof submitted",
+          "A learner has submitted proof for review"
+        );
+      }
       return {
         success: true,
         data,

@@ -41,4 +41,19 @@ export async function notificationRoutes(app: FastifyInstance) {
     },
   );
 
+  app.get(
+    "/me/notifications/unread-count",
+    { preHandler: authenticate },
+    async (request) => {
+      const count = await prisma.notification.count({
+        where: {
+          userId: request.user!.id,
+          read: false,
+        },
+      });
+
+      return { count };
+    },
+  );
+
 }

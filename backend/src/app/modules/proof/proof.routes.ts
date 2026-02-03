@@ -203,8 +203,35 @@ app.post(
 
     const proof = await prisma.proofOfWork.findUnique({
       where: { id: proofId },
+      include: {
+        learnerSkill: {
+          include: {
+            learner: true,
+            skill: {
+              include: {
+                mentorSkills: true,
+              },
+            },
+          },
+        },
+      },
     });
+const recipients = new Set<string>();
 
+recipients.add(proof!.learnerSkill.learnerId);
+proof!.learnerSkill.skill.mentorSkills.forEach((ms) =>
+  recipients.add(ms.mentorId),
+);
+
+recipients.delete(request.user!.id);
+
+for (const userId of recipients) {
+  await notifyUser(
+    userId,
+    "New comment on proof",
+    "A new comment was added to a proof you are involved in",
+  );
+}
     if (!proof) {
       return reply.status(404).send({ message: "Proof not found" });
     }

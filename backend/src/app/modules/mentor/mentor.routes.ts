@@ -41,4 +41,29 @@ export async function mentorRoutes(app: FastifyInstance) {
       });
     },
   );
+  app.get(
+    "/mentor/analytics",
+    { preHandler: [authenticate, authorize([UserRole.MENTOR])] },
+    async (request) => {
+      const skillsCount = await prisma.mentorSkill.count({
+        where: { mentorId: request.user!.id },
+      });
+
+      const learnersCount = await prisma.learnerSkill.count({
+        where: {
+          skill: {
+            mentorSkills: {
+              some: { mentorId: request.user!.id },
+            },
+          },
+        },
+      });
+
+      return {
+        skillsTaught: skillsCount,
+        learnersHelped: learnersCount,
+      };
+    },
+  );
+
 }

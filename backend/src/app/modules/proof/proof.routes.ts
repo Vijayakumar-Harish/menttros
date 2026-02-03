@@ -135,6 +135,12 @@ export async function proofRoutes(app: FastifyInstance) {
               skill: true,
             },
           },
+          comments: {
+            include: {
+              author: {select: {id: true, name: true}},
+            },
+            orderBy: {createdAt: "asc"},
+          },
         },
         orderBy: {
           createdAt: "desc",

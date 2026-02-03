@@ -14,7 +14,7 @@ model User {
   password  String
   role      UserRole
   createdAt DateTime @default(now())
-
+  proofComments ProofComment[]
   mentorSkills  MentorSkill[]  @relation("MentorToSkills")
   learnerSkills LearnerSkill[] @relation("LearnerToSkills")
 
@@ -69,7 +69,7 @@ model ProofOfWork {
   url            String?
   status         ProofStatus @default(PENDING)
   createdAt      DateTime    @default(now())
-
+  comments ProofComment[]
   learnerSkill LearnerSkill @relation("LearnerSkillToProofs", fields: [learnerSkillId], references: [id])
 }
 
@@ -88,4 +88,15 @@ model Notification {
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
+}
+
+model ProofComment {
+  id        String   @id @default(uuid())
+  proofId   String
+  authorId  String
+  message   String
+  createdAt DateTime @default(now())
+
+  proof  ProofOfWork @relation(fields: [proofId], references: [id])
+  author User        @relation(fields: [authorId], references: [id])
 }

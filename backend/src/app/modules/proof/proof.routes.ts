@@ -184,5 +184,33 @@ export async function proofRoutes(app: FastifyInstance) {
       });
     },
   );
+app.post(
+  "/proof/:proofId/comments",
+  { preHandler: authenticate },
+  async (request, reply) => {
+    const { proofId } = request.params as any;
+    const { message } = request.body as any;
+
+    if (!message) {
+      return reply.status(400).send({ message: "Message is required" });
+    }
+
+    const proof = await prisma.proofOfWork.findUnique({
+      where: { id: proofId },
+    });
+
+    if (!proof) {
+      return reply.status(404).send({ message: "Proof not found" });
+    }
+
+    return prisma.proofComment.create({
+      data: {
+        proofId,
+        authorId: request.user!.id,
+        message,
+      },
+    });
+  },
+);
 
 }

@@ -21,7 +21,7 @@ export async function proofRoutes(app: FastifyInstance) {
       }
 
       const learnerSkill = await prisma.learnerSkill.findUnique({
-        where: { id: learnerSkillId },
+        where: { id: learnerSkillId},
       });
 
       if (!learnerSkill || learnerSkill.learnerId !== request.user!.id) {
@@ -33,6 +33,7 @@ export async function proofRoutes(app: FastifyInstance) {
         where: {
           learnerSkillId,
           status: "PENDING",
+          deletedAt: null,
         },
       });
       if (pending) {
@@ -127,7 +128,7 @@ export async function proofRoutes(app: FastifyInstance) {
     },
     async () => {
       return prisma.proofOfWork.findMany({
-        where: { status: "PENDING" },
+        where: { status: "PENDING", deletedAt: null },
         include: {
           learnerSkill: {
             include: {
@@ -155,7 +156,7 @@ export async function proofRoutes(app: FastifyInstance) {
       const { learnerSkillId } = request.params as any;
 
       return prisma.proofOfWork.findMany({
-        where: { learnerSkillId },
+        where: { learnerSkillId , deletedAt: null },
         orderBy: { createdAt: "desc" },
       });
     },
@@ -185,7 +186,7 @@ export async function proofRoutes(app: FastifyInstance) {
       }
 
       return prisma.proofOfWork.findMany({
-        where: { learnerSkillId },
+        where: { learnerSkillId, deletedAt: null },
         orderBy: { createdAt: "desc" },
       });
     },

@@ -246,5 +246,29 @@ for (const userId of recipients) {
     });
   },
 );
+app.delete(
+  "/proof/:proofId",
+  { preHandler: authenticate },
+  async (request, reply) => {
+    const { proofId } = request.params as any;
+
+    const proof = await prisma.proofOfWork.findUnique({
+      where: { id: proofId },
+    });
+
+    if (!proof || proof.deletedAt) {
+      return reply.status(404).send({ message: "Proof not found" });
+    }
+
+    if (proof.learnerSkillId !== proof.learnerSkillId) {
+      return reply.status(403).send({ message: "Not authorized" });
+    }
+
+    return prisma.proofOfWork.update({
+      where: { id: proofId },
+      data: { deletedAt: new Date() },
+    });
+  },
+);
 
 }

@@ -6,6 +6,7 @@ import { UserRole } from "@prisma/client";
 import { levelUpIfEligible } from "../../services/skill-progress.service";
 import { ProofStatus } from "../../../domain/enums/ProofStatus";
 import { notifyUser } from "../../services/notification.service";
+import { auditLog } from "../../../infrastructure/logger/audit";
 
 export async function proofRoutes(app: FastifyInstance) {
   app.post(
@@ -267,7 +268,10 @@ app.delete(
     if (!learnerSkill || learnerSkill.learnerId !== request.user!.id) {
       return reply.status(403).send({ message: "Not authorized" });
     }
-
+    auditLog("PROOF_DELETED", {
+      proofId,
+      userId: request.user!.id,
+    })
     return prisma.proofOfWork.update({
       where: { id: proofId },
       data: { deletedAt: new Date() },

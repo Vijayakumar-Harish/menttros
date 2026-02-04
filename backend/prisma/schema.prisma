@@ -69,6 +69,7 @@ model ProofOfWork {
   url            String?
   status         ProofStatus @default(PENDING)
   createdAt      DateTime    @default(now())
+  deletedAt      DateTime?
   comments ProofComment[]
   learnerSkill LearnerSkill @relation("LearnerSkillToProofs", fields: [learnerSkillId], references: [id])
 }

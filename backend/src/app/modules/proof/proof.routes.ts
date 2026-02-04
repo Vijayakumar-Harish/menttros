@@ -260,7 +260,11 @@ app.delete(
       return reply.status(404).send({ message: "Proof not found" });
     }
 
-    if (proof.learnerSkillId !== proof.learnerSkillId) {
+    const learnerSkill = await prisma.learnerSkill.findUnique({
+      where: { id: proof.learnerSkillId },
+    });
+
+    if (!learnerSkill || learnerSkill.learnerId !== request.user!.id) {
       return reply.status(403).send({ message: "Not authorized" });
     }
 

@@ -19,6 +19,7 @@ model User {
   learnerSkills LearnerSkill[] @relation("LearnerToSkills")
 
   notifications Notification[]
+  auditLogs AuditLog[]
 }
 
 model Skill {
@@ -100,4 +101,14 @@ model ProofComment {
 
   proof  ProofOfWork @relation(fields: [proofId], references: [id])
   author User        @relation(fields: [authorId], references: [id])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  action    String
+  userId    String
+  metadata  Json
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
 }

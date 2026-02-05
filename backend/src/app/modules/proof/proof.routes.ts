@@ -41,6 +41,20 @@ export async function proofRoutes(app: FastifyInstance) {
       if (pending) {
         return { message: "Previous proof still under review" };
       }
+      const recentProofs = await prisma.proofOfWork.count({
+        where: {
+          learnerSkillId,
+          createdAt: {
+            gt: new Date(Date.now() - 60 * 60 * 1000),
+          },
+        },
+      });
+
+      if (recentProofs >= 3) {
+        return reply.status(429).send({
+          message: "Too many submissions. Try again later."
+        });
+      }
       const data = prisma.proofOfWork.create({
         data: {
           learnerSkillId,

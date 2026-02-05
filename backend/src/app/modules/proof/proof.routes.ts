@@ -7,6 +7,7 @@ import { levelUpIfEligible } from "../../services/skill-progress.service";
 import { ProofStatus } from "../../../domain/enums/ProofStatus";
 import { notifyUser } from "../../services/notification.service";
 import { auditLog } from "../../../infrastructure/logger/audit";
+import { audit } from "../../services/audit.service";
 
 export async function proofRoutes(app: FastifyInstance) {
   app.post(
@@ -61,6 +62,9 @@ export async function proofRoutes(app: FastifyInstance) {
           "A learner has submitted proof for review"
         );
       }
+      await audit(request.user!.id, "PROOF_SUBMITTED", {
+        learnerSkillId,
+      })
       return {
         success: true,
         data,
@@ -116,6 +120,11 @@ export async function proofRoutes(app: FastifyInstance) {
         `Proof ${status}`,
         "Your proof has been reviewed by the mentor"
       );
+      await audit(request.user!.id, "PROOF_REVIEWED", {
+        proofId,
+        status,
+      });
+
       return {
         success: true,
         data,
@@ -272,6 +281,10 @@ app.delete(
       proofId,
       userId: request.user!.id,
     })
+    await audit(request.user!.id, "PROOF_DELETED", {
+      proofId,
+    });
+
     return prisma.proofOfWork.update({
       where: { id: proofId },
       data: { deletedAt: new Date() },

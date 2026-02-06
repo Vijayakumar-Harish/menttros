@@ -23,6 +23,11 @@ export async function proofRoutes(app: FastifyInstance) {
           message: "Title and description are required",
         });
       }
+      if(description.length > 2000) {
+        return reply.status(400).send({
+          message: "Description too long",
+        });
+      }
 
       const learnerSkill = await prisma.learnerSkill.findUnique({
         where: { id: learnerSkillId},

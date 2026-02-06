@@ -3,6 +3,7 @@ import { prisma } from "../../../infrastructure/db/prisma";
 import { authenticate } from "../../../infrastructure/auth/auth.middleware";
 import { authorize } from "../../auth/authorize";
 import { UserRole } from "@prisma/client";
+import { ROUTES } from "../../routes";
 
 export async function mentorRoutes(app: FastifyInstance) {
   app.post(
@@ -23,7 +24,7 @@ export async function mentorRoutes(app: FastifyInstance) {
   );
 
   app.get(
-    "/mentor/learners",
+    ROUTES.MENTOR.LEARNERS,
     { preHandler: [authenticate, authorize([UserRole.MENTOR])] },
     async (request) => {
       return prisma.learnerSkill.findMany({
@@ -42,7 +43,7 @@ export async function mentorRoutes(app: FastifyInstance) {
     },
   );
   app.get(
-    "/mentor/analytics",
+    ROUTES.MENTOR.ANALYTICS,
     { preHandler: [authenticate, authorize([UserRole.MENTOR])] },
     async (request) => {
       const skillsCount = await prisma.mentorSkill.count({

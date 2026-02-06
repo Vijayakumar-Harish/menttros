@@ -9,10 +9,11 @@ import { notifyUser } from "../../services/notification.service";
 import { auditLog } from "../../../infrastructure/logger/audit";
 import { audit } from "../../services/audit.service";
 import { success } from "../../../infrastructure/server/response";
+import {ROUTES} from "../../routes";
 
 export async function proofRoutes(app: FastifyInstance) {
   app.post(
-    "/skills/:learnerSkillId/proof",
+    ROUTES.PROOF.SUBMIT,
     { preHandler: authenticate },
     async (request, reply: FastifyReply) => {
       const { learnerSkillId } = request.params as any;
@@ -88,7 +89,7 @@ export async function proofRoutes(app: FastifyInstance) {
   );
 
   app.patch(
-    "/proof/:proofId/review",
+    ROUTES.PROOF.REVIEW,
     {
       preHandler: [authenticate, authorize([UserRole.MENTOR])],
     },
@@ -147,7 +148,7 @@ export async function proofRoutes(app: FastifyInstance) {
     },
   );
   app.get(
-    "/mentor/proofs",
+    ROUTES.MENTOR.PROOFS,
     {
       preHandler: [authenticate, authorize([UserRole.MENTOR])],
     },
@@ -279,7 +280,7 @@ for (const userId of recipients) {
   },
 );
 app.delete(
-  "/proof/:proofId",
+  ROUTES.PROOF.DELETE,
   { preHandler: authenticate },
   async (request, reply) => {
     const { proofId } = request.params as any;

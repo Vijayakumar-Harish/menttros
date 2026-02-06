@@ -1,10 +1,11 @@
 import { FastifyInstance } from "fastify";
 import { prisma } from "../../../infrastructure/db/prisma";
 import { authenticate } from "../../../infrastructure/auth/auth.middleware";
+import { ROUTES } from "../../routes";
 
 export async function notificationRoutes(app: FastifyInstance) {
   app.get(
-    "/me/notifications",
+    ROUTES.NOTIFICATIONS.LIST,
     { preHandler: authenticate },
     async (request) => {
       return prisma.notification.findMany({

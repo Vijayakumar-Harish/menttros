@@ -85,6 +85,13 @@ MenttrOS intentionally does not:
 
 These boundaries protect trust, quality, and accountability.
 
+## Deployment Notes
+
+- Requires PostgreSQL
+- Environment variables must be set
+- Prisma migrations must run before start
+- Health endpoint available at `/health`
+
 ## 🚧 Status
 
 🧪 Early development  

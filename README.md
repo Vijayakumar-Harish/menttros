@@ -76,6 +76,15 @@ All APIs are secured and role-aware.
 - Frontend: React / Next.js
 - Infrastructure: Docker, Cloud Native
 
+## System Boundaries
+
+MenttrOS intentionally does not:
+- Auto-promote skills without mentor approval
+- Allow anonymous actions
+- Permanently delete learning data
+
+These boundaries protect trust, quality, and accountability.
+
 ## 🚧 Status
 
 🧪 Early development  

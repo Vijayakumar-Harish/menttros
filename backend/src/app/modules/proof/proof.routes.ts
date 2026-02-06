@@ -127,6 +127,11 @@ export async function proofRoutes(app: FastifyInstance) {
       if (status === ProofStatus.APPROVED) {
         await levelUpIfEligible(proof!.learnerSkillId);
       }
+      if (!Object.values(ProofStatus).includes(status)) {
+        return reply.status(400).send({
+          message: "Invalid proof status",
+        });
+      }
       const data = await prisma.proofOfWork.update({
         where: { id: proofId },
         data: { status, description: feedback ?? proof.description },

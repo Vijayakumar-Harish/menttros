@@ -60,9 +60,15 @@ export async function skillRoutes(app: FastifyInstance) {
     const learnerSkills = await prisma.learnerSkill.findMany({
       where: { learnerId: request.user!.id },
       include: {
-        skill: true,
-        proofs: true,
-      },
+        skill: {select: {id: true, name: true}},
+        proofs: {
+          select: {
+            id: true,
+            status: true,
+            createdAt: true,
+          }
+        }
+      }
     });
     return learnerSkills.map((ls) => ({
       ...ls,

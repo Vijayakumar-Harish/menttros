@@ -8,6 +8,7 @@ import { ProofStatus } from "../../../domain/enums/ProofStatus";
 import { notifyUser } from "../../services/notification.service";
 import { auditLog } from "../../../infrastructure/logger/audit";
 import { audit } from "../../services/audit.service";
+import { success } from "../../../infrastructure/server/response";
 
 export async function proofRoutes(app: FastifyInstance) {
   app.post(
@@ -151,7 +152,7 @@ export async function proofRoutes(app: FastifyInstance) {
       preHandler: [authenticate, authorize([UserRole.MENTOR])],
     },
     async () => {
-      return prisma.proofOfWork.findMany({
+      const proof = await prisma.proofOfWork.findMany({
         where: { status: "PENDING", deletedAt: null },
         include: {
           learnerSkill: {
@@ -171,6 +172,7 @@ export async function proofRoutes(app: FastifyInstance) {
           createdAt: "desc",
         },
       });
+      return success(proof);
     },
   );
   app.get(
@@ -179,10 +181,12 @@ export async function proofRoutes(app: FastifyInstance) {
     async (request) => {
       const { learnerSkillId } = request.params as any;
 
-      return prisma.proofOfWork.findMany({
+      const proof = await prisma.proofOfWork.findMany({
         where: { learnerSkillId , deletedAt: null },
         orderBy: { createdAt: "desc" },
       });
+
+      return success(proof);
     },
   );
 
@@ -209,10 +213,12 @@ export async function proofRoutes(app: FastifyInstance) {
         return reply.status(403).send({ message: "Not authorized" });
       }
 
-      return prisma.proofOfWork.findMany({
+      const proof = await prisma.proofOfWork.findMany({
         where: { learnerSkillId, deletedAt: null },
         orderBy: { createdAt: "desc" },
       });
+
+      return success(proof);
     },
   );
 app.post(
@@ -261,13 +267,15 @@ for (const userId of recipients) {
       return reply.status(404).send({ message: "Proof not found" });
     }
 
-    return prisma.proofComment.create({
+    const data = await prisma.proofComment.create({
       data: {
         proofId,
         authorId: request.user!.id,
         message,
       },
     });
+
+    return success(data);
   },
 );
 app.delete(
@@ -299,10 +307,12 @@ app.delete(
       proofId,
     });
 
-    return prisma.proofOfWork.update({
+    const data = await prisma.proofOfWork.update({
       where: { id: proofId },
       data: { deletedAt: new Date() },
     });
+
+    return success(data);
   },
 );
 

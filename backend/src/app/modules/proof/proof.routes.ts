@@ -157,9 +157,12 @@ export async function proofRoutes(app: FastifyInstance) {
     {
       preHandler: [authenticate, authorize([UserRole.MENTOR])],
     },
-    async () => {
+    async (request) => {
+      const {page = 1, limit = 20} = request.query as any;
       const proof = await prisma.proofOfWork.findMany({
         where: { status: "PENDING", deletedAt: null },
+        skip: (page - 1) * limit,
+        take: limit,
         include: {
           learnerSkill: {
             include: {

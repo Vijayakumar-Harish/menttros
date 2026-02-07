@@ -9,9 +9,22 @@ export async function skillRoutes(app: FastifyInstance) {
     return prisma.skill.create({ data: { name, description } });
   });
 
-  app.get("/skills", async () => {
-    return prisma.skill.findMany();
+  app.get("/skills", async (request) => {
+    const { q } = request.query as any;
+
+    return prisma.skill.findMany({
+      where: q
+        ? {
+            name: {
+              contains: q,
+              mode: "insensitive",
+            },
+          }
+        : undefined,
+      orderBy: { name: "asc" },
+    });
   });
+
 
   app.post(
     "/skills/:skillId/enroll",

@@ -13,3 +13,5 @@ export const ROUTES = {
     LIST: "/me/notifications",
   },
 };
+
+export const API_V1 = "/api/v1";

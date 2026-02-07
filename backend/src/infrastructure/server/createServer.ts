@@ -2,6 +2,10 @@ import Fastify from "fastify";
 import { userRoutes } from "../../app/modules/user/user.routes";
 import { authRoutes } from "../../app/modules/auth/auth.routes";
 import { skillRoutes } from "../../app/modules/skill/skill.routes";
+import { API_V1 } from "../../app/routes";
+import { proofRoutes } from "../../app/modules/proof/proof.routes";
+import { mentorRoutes } from "../../app/modules/mentor/mentor.routes";
+
 export function createServer() {
   const app = Fastify({
     logger: true,
@@ -18,11 +22,13 @@ export function createServer() {
       service: "menttros-backend",
     };
   });
-  app.register(authRoutes, { prefix: "/api" });
-  app.register(userRoutes, { prefix: "/api" });
-  app.register(authRoutes, { prefix: "/api/v1" });
-  app.register(userRoutes, { prefix: "/api/v1" });
-  app.register(skillRoutes, { prefix: "/api/v1" });
+
+  app.register(authRoutes, { prefix: API_V1 });
+  app.register(userRoutes, { prefix: API_V1 });
+  app.register(skillRoutes, { prefix: API_V1 });
+  app.register(proofRoutes, { prefix: API_V1 });
+  app.register(mentorRoutes, { prefix: API_V1 });
+
 
   return app;
 }

@@ -36,6 +36,16 @@ MenttrOS solves this by:
 
 All APIs are secured and role-aware.
 
+## API Versioning
+
+All APIs are exposed under `/api/v1`.
+Future versions will not break existing clients.
+
+## Search & Filters
+
+- Skills can be searched by name
+- Proofs can be filtered by status
+
 ## 🧠 Core Principles
 
 - Learn by doing

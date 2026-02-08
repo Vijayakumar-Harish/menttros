@@ -2,6 +2,7 @@ import { FastifyInstance } from "fastify";
 import { prisma } from "../../../infrastructure/db/prisma";
 import { authenticate } from "../../../infrastructure/auth/auth.middleware";
 import { calculateProgress } from "../../services/skill-progress.service";
+import { getCache, setCache } from "../../../infrastructure/cache/simpleCache";
 
 export async function skillRoutes(app: FastifyInstance) {
   app.post("/skills", async (req) => {
@@ -11,8 +12,11 @@ export async function skillRoutes(app: FastifyInstance) {
 
   app.get("/skills", async (request) => {
     const { q } = request.query as any;
+    const cacheKey = `skills:${q ?? "all"}`;
+    const cached = getCache<any[]>(cacheKey);
+    if(cached) return cached;
 
-    return prisma.skill.findMany({
+    const skills = await prisma.skill.findMany({
       where: q
         ? {
             name: {
@@ -23,6 +27,9 @@ export async function skillRoutes(app: FastifyInstance) {
         : undefined,
       orderBy: { name: "asc" },
     });
+    setCache(cacheKey, skills);
+
+    return skills;
   });
 
 

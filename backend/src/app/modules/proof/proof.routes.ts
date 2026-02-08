@@ -9,7 +9,7 @@ import { notifyUser } from "../../services/notification.service";
 import { auditLog } from "../../../infrastructure/logger/audit";
 import { audit } from "../../services/audit.service";
 import { success } from "../../../infrastructure/server/response";
-import {ROUTES} from "../../routes";
+import { ROUTES } from "../../routes";
 import { proofWithContext } from "../../queries/proof.includes";
 
 export async function proofRoutes(app: FastifyInstance) {
@@ -24,14 +24,14 @@ export async function proofRoutes(app: FastifyInstance) {
           message: "Title and description are required",
         });
       }
-      if(description.length > 2000) {
+      if (description.length > 2000) {
         return reply.status(400).send({
           message: "Description too long",
         });
       }
 
       const learnerSkill = await prisma.learnerSkill.findUnique({
-        where: { id: learnerSkillId},
+        where: { id: learnerSkillId },
       });
 
       if (!learnerSkill || learnerSkill.learnerId !== request.user!.id) {
@@ -60,10 +60,10 @@ export async function proofRoutes(app: FastifyInstance) {
 
       if (recentProofs >= 3) {
         return reply.status(429).send({
-          message: "Too many submissions. Try again later."
+          message: "Too many submissions. Try again later.",
         });
       }
-      const data = prisma.proofOfWork.create({
+      const data = await prisma.proofOfWork.create({
         data: {
           learnerSkillId,
           title,
@@ -77,16 +77,16 @@ export async function proofRoutes(app: FastifyInstance) {
         },
       });
 
-      for(const ms of mentorSkills) {
+      for (const ms of mentorSkills) {
         await notifyUser(
           ms.mentorId,
           "New proof submitted",
-          "A learner has submitted proof for review"
+          "A learner has submitted proof for review",
         );
       }
       await audit(request.user!.id, "PROOF_SUBMITTED", {
         learnerSkillId,
-      })
+      });
       return {
         success: true,
         data,
@@ -129,15 +129,15 @@ export async function proofRoutes(app: FastifyInstance) {
       if (!teachesSkill) {
         return reply.status(403).send({ message: "Not authorized" });
       }
-
-      if (status === ProofStatus.APPROVED) {
-        await levelUpIfEligible(proof!.learnerSkillId);
-      }
       if (!Object.values(ProofStatus).includes(status)) {
         return reply.status(400).send({
           message: "Invalid proof status",
         });
       }
+      if (status === ProofStatus.APPROVED) {
+        await levelUpIfEligible(proof!.learnerSkillId);
+      }
+
       const data = await prisma.proofOfWork.update({
         where: { id: proofId },
         data: { status, description: feedback ?? proof.description },
@@ -145,7 +145,7 @@ export async function proofRoutes(app: FastifyInstance) {
       await notifyUser(
         proof.learnerSkill.learnerId,
         `Proof ${status}`,
-        "Your proof has been reviewed by the mentor"
+        "Your proof has been reviewed by the mentor",
       );
       await audit(request.user!.id, "PROOF_REVIEWED", {
         proofId,
@@ -164,13 +164,13 @@ export async function proofRoutes(app: FastifyInstance) {
       preHandler: [authenticate, authorize([UserRole.MENTOR])],
     },
     async (request) => {
-      const {page = 1, limit = 20, status} = request.query as any;
+      const { page = 1, limit = 20, status } = request.query as any;
       const proof = await prisma.proofOfWork.findMany({
         where: { ...(status ? { status } : {}), deletedAt: null },
         skip: (page - 1) * limit,
         take: limit,
         include: proofWithContext,
-        orderBy: { createdAt: "asc" },
+        orderBy: { createdAt: "desc" },
       });
       return success(proof);
     },
@@ -182,7 +182,7 @@ export async function proofRoutes(app: FastifyInstance) {
       const { learnerSkillId } = request.params as any;
 
       const proof = await prisma.proofOfWork.findMany({
-        where: { learnerSkillId , deletedAt: null },
+        where: { learnerSkillId, deletedAt: null },
         orderBy: { createdAt: "desc" },
       });
 
@@ -221,99 +221,101 @@ export async function proofRoutes(app: FastifyInstance) {
       return success(proof);
     },
   );
-app.post(
-  "/proof/:proofId/comments",
-  { preHandler: authenticate },
-  async (request, reply) => {
-    const { proofId } = request.params as any;
-    const { message } = request.body as any;
+  app.post(
+    "/proof/:proofId/comments",
+    { preHandler: authenticate },
+    async (request, reply) => {
+      const { proofId } = request.params as any;
+      const { message } = request.body as any;
 
-    if (!message) {
-      return reply.status(400).send({ message: "Message is required" });
-    }
+      if (!message) {
+        return reply.status(400).send({ message: "Message is required" });
+      }
 
-    const proof = await prisma.proofOfWork.findUnique({
-      where: { id: proofId },
-      include: {
-        learnerSkill: {
-          include: {
-            learner: true,
-            skill: {
-              include: {
-                mentorSkills: true,
+      const proof = await prisma.proofOfWork.findUnique({
+        where: { id: proofId },
+        include: {
+          learnerSkill: {
+            include: {
+              learner: true,
+              skill: {
+                include: {
+                  mentorSkills: true,
+                },
               },
             },
           },
         },
-      },
-    });
-const recipients = new Set<string>();
+      });
+      if(!proof) {
+        return reply.status(404).send({ message: "Proof not found"});
+      }
+      const recipients = new Set<string>();
 
-recipients.add(proof!.learnerSkill.learnerId);
-proof!.learnerSkill.skill.mentorSkills.forEach((ms) =>
-  recipients.add(ms.mentorId),
-);
+      recipients.add(proof.learnerSkill.learnerId);
+      proof!.learnerSkill.skill.mentorSkills.forEach((ms) =>
+        recipients.add(ms.mentorId),
+      );
 
-recipients.delete(request.user!.id);
+      recipients.delete(request.user!.id);
 
-for (const userId of recipients) {
-  await notifyUser(
-    userId,
-    "New comment on proof",
-    "A new comment was added to a proof you are involved in",
+      for (const userId of recipients) {
+        await notifyUser(
+          userId,
+          "New comment on proof",
+          "A new comment was added to a proof you are involved in",
+        );
+      }
+      if (!proof) {
+        return reply.status(404).send({ message: "Proof not found" });
+      }
+
+      const data = await prisma.proofComment.create({
+        data: {
+          proofId,
+          authorId: request.user!.id,
+          message,
+        },
+      });
+
+      return success(data);
+    },
   );
-}
-    if (!proof) {
-      return reply.status(404).send({ message: "Proof not found" });
-    }
+  app.delete(
+    ROUTES.PROOF.DELETE,
+    { preHandler: authenticate },
+    async (request, reply) => {
+      const { proofId } = request.params as any;
 
-    const data = await prisma.proofComment.create({
-      data: {
+      const proof = await prisma.proofOfWork.findUnique({
+        where: { id: proofId },
+      });
+
+      if (!proof || proof.deletedAt) {
+        return reply.status(404).send({ message: "Proof not found" });
+      }
+
+      const learnerSkill = await prisma.learnerSkill.findUnique({
+        where: { id: proof.learnerSkillId },
+      });
+
+      if (!learnerSkill || learnerSkill.learnerId !== request.user!.id) {
+        return reply.status(403).send({ message: "Not authorized" });
+      }
+      auditLog("PROOF_DELETED", {
         proofId,
-        authorId: request.user!.id,
-        message,
-      },
-    });
+        userId: request.user!.id,
+      });
+      await audit(request.user!.id, "PROOF_DELETED", {
+        proofId,
+      });
 
-    return success(data);
-  },
-);
-app.delete(
-  ROUTES.PROOF.DELETE,
-  { preHandler: authenticate },
-  async (request, reply) => {
-    const { proofId } = request.params as any;
+      const data = await prisma.proofOfWork.update({
+        where: { id: proofId },
+        data: { deletedAt: new Date() },
+      });
 
-    const proof = await prisma.proofOfWork.findUnique({
-      where: { id: proofId },
-    });
-
-    if (!proof || proof.deletedAt) {
-      return reply.status(404).send({ message: "Proof not found" });
-    }
-
-    const learnerSkill = await prisma.learnerSkill.findUnique({
-      where: { id: proof.learnerSkillId },
-    });
-
-    if (!learnerSkill || learnerSkill.learnerId !== request.user!.id) {
-      return reply.status(403).send({ message: "Not authorized" });
-    }
-    auditLog("PROOF_DELETED", {
-      proofId,
-      userId: request.user!.id,
-    })
-    await audit(request.user!.id, "PROOF_DELETED", {
-      proofId,
-    });
-
-    const data = await prisma.proofOfWork.update({
-      where: { id: proofId },
-      data: { deletedAt: new Date() },
-    });
-
-    return success(data);
-  },
-);
-
+      return success(data);
+    },
+  );
 }

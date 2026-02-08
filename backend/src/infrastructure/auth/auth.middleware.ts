@@ -26,6 +26,7 @@ export async function authenticate(
     }
 
     request.user = toDomainUser(user);
+    return;
   } catch {
     return reply.status(401).send({ message: "Invalid token" });
   }

@@ -10,6 +10,7 @@ import { auditLog } from "../../../infrastructure/logger/audit";
 import { audit } from "../../services/audit.service";
 import { success } from "../../../infrastructure/server/response";
 import {ROUTES} from "../../routes";
+import { proofWithContext } from "../../queries/proof.includes";
 
 export async function proofRoutes(app: FastifyInstance) {
   app.post(
@@ -165,26 +166,11 @@ export async function proofRoutes(app: FastifyInstance) {
     async (request) => {
       const {page = 1, limit = 20, status} = request.query as any;
       const proof = await prisma.proofOfWork.findMany({
-        where: { ...(status ? {status}:{}), deletedAt: null },
+        where: { ...(status ? { status } : {}), deletedAt: null },
         skip: (page - 1) * limit,
         take: limit,
-        include: {
-          learnerSkill: {
-            include: {
-              learner: { select: { id: true, name: true } },
-              skill: true,
-            },
-          },
-          comments: {
-            include: {
-              author: {select: {id: true, name: true}},
-            },
-            orderBy: {createdAt: "asc"},
-          },
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
+        include: proofWithContext,
+        orderBy: { createdAt: "asc" },
       });
       return success(proof);
     },

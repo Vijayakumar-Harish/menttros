@@ -11,9 +11,18 @@ export async function mentorRoutes(app: FastifyInstance) {
     {
       preHandler: [authenticate, authorize([UserRole.MENTOR])],
     },
-    async (request) => {
+    async (request, reply) => {
       const { skillId } = request.params as any;
+      const existing = await prisma.mentorSkill.findFirst({
+        where: {
+          mentorId: request.user!.id,
+          skillId,
+        },
+      });
 
+      if(existing) {
+        return reply.status(400).send({message: "Already mentoring this skill"});
+      }
       return prisma.mentorSkill.create({
         data: {
           mentorId: request.user!.id,

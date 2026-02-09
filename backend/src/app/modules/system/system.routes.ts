@@ -21,4 +21,14 @@ export async function systemRoutes(app: FastifyInstance) {
         proofs,
       };
     });
+
+    if (process.env.NODE_ENV !== "production") {
+      app.get("/debug/env", async () => {
+        return {
+          nodeEnv: process.env.NODE_ENV,
+          port: process.env.PORT,
+        };
+      });
+    }
+
 }

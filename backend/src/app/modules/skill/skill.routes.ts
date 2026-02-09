@@ -19,10 +19,20 @@ export async function skillRoutes(app: FastifyInstance) {
     const skills = await prisma.skill.findMany({
       where: q
         ? {
-            name: {
-              contains: q,
-              mode: "insensitive",
-            },
+            OR: [
+              {
+                name: {
+                  contains: q,
+                  mode: "insensitive",
+                },
+              },
+              {
+                description: {
+                  contains: q,
+                  mode: "insensitive",
+                },
+              },
+            ],
           }
         : undefined,
       orderBy: { name: "asc" },

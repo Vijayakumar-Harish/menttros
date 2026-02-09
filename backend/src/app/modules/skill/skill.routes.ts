@@ -7,7 +7,8 @@ import { getCache, setCache } from "../../../infrastructure/cache/simpleCache";
 export async function skillRoutes(app: FastifyInstance) {
   app.post("/skills", async (req) => {
     const { name, description } = req.body as any;
-    return prisma.skill.create({ data: { name, description } });
+    const skill= await prisma.skill.create({ data: { name, description } });
+    setCache("skills:all", null, 0);
   });
 
   app.get("/skills", async (request) => {

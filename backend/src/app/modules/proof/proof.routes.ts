@@ -180,9 +180,14 @@ export async function proofRoutes(app: FastifyInstance) {
   app.get(
     "/skills/:learnerSkillId/proofs",
     { preHandler: authenticate },
-    async (request) => {
+    async (request, reply) => {
       const { learnerSkillId } = request.params as any;
-
+      const learnerSkill = await prisma.learnerSkill.findUnique({
+        where: {id: learnerSkillId}
+      });
+      if(!learnerSkill || learnerSkill.learnerId !== request.user!.id) {
+        return reply.status(403).send({message: "Not authorized"});
+      }
       const proof = await prisma.proofOfWork.findMany({
         where: { learnerSkillId, deletedAt: null },
         orderBy: { createdAt: "desc" },

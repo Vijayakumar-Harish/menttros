@@ -73,6 +73,9 @@ model ProofOfWork {
   deletedAt      DateTime?
   comments ProofComment[]
   learnerSkill LearnerSkill @relation("LearnerSkillToProofs", fields: [learnerSkillId], references: [id])
+
+  @@index([status, createdAt])
+  @@index([learnerSkillId, createdAt])
 }
 
 enum ProofStatus {

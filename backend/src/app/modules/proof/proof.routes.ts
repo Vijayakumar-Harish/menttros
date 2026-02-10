@@ -11,6 +11,7 @@ import { audit } from "../../services/audit.service";
 import { success } from "../../../infrastructure/server/response";
 import { ROUTES } from "../../routes";
 import { proofWithContext } from "../../queries/proof.includes";
+import { error } from "../../../infrastructure/server/errorResponse";
 
 export async function proofRoutes(app: FastifyInstance) {
   app.post(
@@ -186,7 +187,7 @@ export async function proofRoutes(app: FastifyInstance) {
         where: {id: learnerSkillId}
       });
       if(!learnerSkill || learnerSkill.learnerId !== request.user!.id) {
-        return reply.status(403).send({message: "Not authorized"});
+        return reply.status(403).send(error("Not authorized", 403));
       }
       const proof = await prisma.proofOfWork.findMany({
         where: { learnerSkillId, deletedAt: null },
@@ -217,7 +218,7 @@ export async function proofRoutes(app: FastifyInstance) {
       });
 
       if (!learnerSkill || learnerSkill.skill.mentorSkills.length === 0) {
-        return reply.status(403).send({ message: "Not authorized" });
+        return reply.status(403).send(error("Not authorized", 403));
       }
 
       const proof = await prisma.proofOfWork.findMany({

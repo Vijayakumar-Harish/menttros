@@ -58,7 +58,7 @@ model LearnerSkill {
   skill   Skill @relation("SkillToLearners", fields: [skillId], references: [id])
 
   proofs ProofOfWork[] @relation("LearnerSkillToProofs")
-
+  @@index([learnerId])
   @@unique([learnerId, skillId])
 }
 

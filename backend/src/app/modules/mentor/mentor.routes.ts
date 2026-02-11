@@ -2,7 +2,7 @@ import { FastifyInstance } from "fastify";
 import { prisma } from "../../../infrastructure/db/prisma";
 import { authenticate } from "../../../infrastructure/auth/auth.middleware";
 import { authorize } from "../../auth/authorize";
-import { UserRole } from "@prisma/client";
+import { ProofStatus, UserRole } from "@prisma/client";
 import { ROUTES } from "../../routes";
 import { success } from "../../../infrastructure/server/response";
 

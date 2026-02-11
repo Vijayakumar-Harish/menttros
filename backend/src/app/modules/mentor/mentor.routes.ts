@@ -4,6 +4,7 @@ import { authenticate } from "../../../infrastructure/auth/auth.middleware";
 import { authorize } from "../../auth/authorize";
 import { UserRole } from "@prisma/client";
 import { ROUTES } from "../../routes";
+import { success } from "../../../infrastructure/server/response";
 
 export async function mentorRoutes(app: FastifyInstance) {
   app.post(
@@ -75,5 +76,26 @@ export async function mentorRoutes(app: FastifyInstance) {
       };
     },
   );
+app.get(
+  "/mentor/pending-count",
+  { preHandler: [authenticate, authorize([UserRole.MENTOR])] },
+  async (request) => {
+    const count = await prisma.proofOfWork.count({
+      where: {
+        status: ProofStatus.PENDING,
+        deletedAt: null,
+        learnerSkill: {
+          skill: {
+            mentorSkills: {
+              some: { mentorId: request.user!.id },
+            },
+          },
+        },
+      },
+    });
+
+    return success({ count });
+  },
+);
 
 }

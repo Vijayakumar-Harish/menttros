@@ -236,7 +236,7 @@ export async function proofRoutes(app: FastifyInstance) {
       const { proofId } = request.params as any;
       const { message } = request.body as any;
 
-      if (!message) {
+      if (!message || !message.trim()) {
         return reply.status(400).send({ message: "Message is required" });
       }
 

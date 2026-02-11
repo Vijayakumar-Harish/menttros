@@ -3,6 +3,7 @@ import { prisma } from "../../../infrastructure/db/prisma";
 import { authenticate } from "../../../infrastructure/auth/auth.middleware";
 import { calculateProgress } from "../../services/skill-progress.service";
 import { getCache, setCache } from "../../../infrastructure/cache/simpleCache";
+import { success } from "../../../infrastructure/server/response";
 
 export async function skillRoutes(app: FastifyInstance) {
   app.post("/skills", async (req) => {
@@ -106,4 +107,29 @@ export async function skillRoutes(app: FastifyInstance) {
       progress: calculateProgress(ls.level),
     }));
   });
+  app.get(
+    "/me/progress-summary",
+    { preHandler: authenticate },
+    async (request) => {
+      const learnerSkills = await prisma.learnerSkill.findMany({
+        where: { learnerId: request.user!.id },
+        include: {
+          skill: { select: { id: true, name: true } },
+          proofs: {
+            where: { deletedAt: null },
+          },
+        },
+      });
+
+      const summary = learnerSkills.map((ls) => ({
+        skillId: ls.skill.id,
+        skillName: ls.skill.name,
+        level: ls.level,
+        totalProofs: ls.proofs.length,
+      }));
+
+      return success(summary);
+    },
+  );
+
 }

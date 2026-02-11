@@ -11,10 +11,14 @@ export function createServer() {
     logger: true,
   });
   app.addHook("onRequest", async (request) => {
-    // TEMPORARY: placeholder user
-    // Tomorrow this will be replaced by JWT auth
-    request.user = null;
+    request.startTime = Date.now();
   });
+
+  app.addHook("onResponse", async (request) => {
+    const duration = Date.now() - request.startTime;
+    console.log(`${request.method} ${request.url} - ${duration}ms`);
+  });
+
 
   app.get("/health", async () => {
     return {

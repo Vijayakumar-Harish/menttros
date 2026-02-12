@@ -12,6 +12,8 @@ import { success } from "../../../infrastructure/server/response";
 import { ROUTES } from "../../routes";
 import { proofWithContext } from "../../queries/proof.includes";
 import { error } from "../../../infrastructure/server/errorResponse";
+import { normalizePagination } from "../../../infrastructure/utils/pagination";
+
 
 export async function proofRoutes(app: FastifyInstance) {
   app.post(
@@ -165,12 +167,11 @@ export async function proofRoutes(app: FastifyInstance) {
       preHandler: [authenticate, authorize([UserRole.MENTOR])],
     },
     async (request) => {
-      let { page = 1, limit = 20, status, sort="desc" } = request.query as any;
-      page = Number(page);
-      limit = Math.min(Number(limit), 50);
+      let { status } = request.query as any;
+      const { page, limit, skip, sort } = normalizePagination(request.query);
       const proof = await prisma.proofOfWork.findMany({
         where: { ...(status ? { status } : {}), deletedAt: null },
-        skip: (page - 1) * limit,
+        skip,
         take: limit,
         include: proofWithContext,
         orderBy: { createdAt: sort === "asc" ? "asc" : "desc" },

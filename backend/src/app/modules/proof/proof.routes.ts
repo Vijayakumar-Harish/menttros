@@ -13,6 +13,7 @@ import { ROUTES } from "../../routes";
 import { proofWithContext } from "../../queries/proof.includes";
 import { error } from "../../../infrastructure/server/errorResponse";
 import { normalizePagination } from "../../../infrastructure/utils/pagination";
+import { notDeleted } from "../../../infrastructure/utils/notDeleted";
 
 
 export async function proofRoutes(app: FastifyInstance) {
@@ -191,7 +192,7 @@ export async function proofRoutes(app: FastifyInstance) {
         return reply.status(403).send(error("Not authorized", 403));
       }
       const proof = await prisma.proofOfWork.findMany({
-        where: { learnerSkillId, deletedAt: null },
+        where: { learnerSkillId, ...notDeleted },
         orderBy: { createdAt: "desc" },
       });
 
@@ -223,7 +224,7 @@ export async function proofRoutes(app: FastifyInstance) {
       }
 
       const proof = await prisma.proofOfWork.findMany({
-        where: { learnerSkillId, deletedAt: null },
+        where: { learnerSkillId, ...notDeleted },
         orderBy: { createdAt: "desc" },
       });
 

@@ -2,6 +2,7 @@ import { FastifyInstance } from "fastify";
 import { prisma } from "../../../infrastructure/db/prisma";
 import { authenticate } from "../../../infrastructure/auth/auth.middleware";
 import { ROUTES } from "../../routes";
+import { success } from "../../../infrastructure/server/response";
 
 export async function notificationRoutes(app: FastifyInstance) {
   app.get(
@@ -53,7 +54,7 @@ export async function notificationRoutes(app: FastifyInstance) {
         },
       });
 
-      return { count };
+      return success({count});
     },
   );
 

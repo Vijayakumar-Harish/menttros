@@ -9,37 +9,51 @@ export async function notificationRoutes(app: FastifyInstance) {
     ROUTES.NOTIFICATIONS.LIST,
     { preHandler: authenticate },
     async (request) => {
-      return prisma.notification.findMany({
+      const data = await prisma.notification.findMany({
         where: { userId: request.user!.id },
         orderBy: { createdAt: "desc" },
       });
+      return success(data);
     },
   );
 
   app.patch(
     "/notifications/:id/read",
     { preHandler: authenticate },
-    async (request) => {
+    async (request, reply) => {
       const { id } = request.params as any;
 
-      return prisma.notification.update({
+      const notification = await prisma.notification.findUnique({
+        where: { id },
+      });
+
+      if (!notification || notification.userId !== request.user!.id) {
+        return reply.status(404).send({ message: "Notification not found" });
+      }
+
+      const data = await prisma.notification.update({
         where: { id },
         data: { read: true },
       });
+
+      return success(data);
     },
   );
+
 
   app.patch(
     "/me/notifications/read-all",
     { preHandler: authenticate },
     async (request) => {
-      return prisma.notification.updateMany({
+      const result = await prisma.notification.updateMany({
         where: {
           userId: request.user!.id,
           read: false,
         },
         data: { read: true },
       });
+
+      return success(result);
     },
   );
 

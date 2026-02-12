@@ -24,8 +24,10 @@ export function createServer() {
     return {
       status: "ok",
       service: "menttros-backend",
+      version: "v1",
     };
   });
+
 
   app.register(authRoutes, { prefix: API_V1 });
   app.register(userRoutes, { prefix: API_V1 });

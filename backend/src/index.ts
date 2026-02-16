@@ -20,5 +20,10 @@ const start = async () => {
     process.exit(1);
   }
 };
+process.on('SIGTERM', async () => {
+  console.log("Shutting down...");
+  await app.close();
+  process.exit(0);
+})
 
 start();

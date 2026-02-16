@@ -7,6 +7,7 @@ import { proofRoutes } from "../../app/modules/proof/proof.routes";
 import { mentorRoutes } from "../../app/modules/mentor/mentor.routes";
 import { registerRoutes } from "../../app/registerRoutes";
 import { success } from "./response";
+import rateLimit from "@fastify/rate-limit";
 
 export function createServer() {
   const app = Fastify({
@@ -37,6 +38,11 @@ export function createServer() {
       success: false,
       message: error.message || "Internal Server Error",
     });
+  });
+
+  app.register(rateLimit, {
+    max: 100,
+    timeWindow: "1 minute",
   });
   // app.register(authRoutes, { prefix: API_V1 });
   // app.register(userRoutes, { prefix: API_V1 });

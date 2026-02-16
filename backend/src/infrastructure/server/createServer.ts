@@ -5,6 +5,8 @@ import { skillRoutes } from "../../app/modules/skill/skill.routes";
 import { API_V1 } from "../../app/routes";
 import { proofRoutes } from "../../app/modules/proof/proof.routes";
 import { mentorRoutes } from "../../app/modules/mentor/mentor.routes";
+import { registerRoutes } from "../../app/registerRoutes";
+import { success } from "./response";
 
 export function createServer() {
   const app = Fastify({
@@ -28,12 +30,21 @@ export function createServer() {
     };
   });
 
+  app.setErrorHandler((error, request, reply) => {
+    request.log.error(error);
 
-  app.register(authRoutes, { prefix: API_V1 });
-  app.register(userRoutes, { prefix: API_V1 });
-  app.register(skillRoutes, { prefix: API_V1 });
-  app.register(proofRoutes, { prefix: API_V1 });
-  app.register(mentorRoutes, { prefix: API_V1 });
+    reply.status(error.statusCode || 500).send({
+      success: false,
+      message: error.message || "Internal Server Error",
+    });
+  });
+  // app.register(authRoutes, { prefix: API_V1 });
+  // app.register(userRoutes, { prefix: API_V1 });
+  // app.register(skillRoutes, { prefix: API_V1 });
+  // app.register(proofRoutes, { prefix: API_V1 });
+  // app.register(mentorRoutes, { prefix: API_V1 });
+
+  registerRoutes(app);
 
 
   return app;

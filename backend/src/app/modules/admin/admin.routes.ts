@@ -42,4 +42,25 @@ export async function adminRoutes(app: FastifyInstance) {
         });
       },
     );
+    app.delete(
+      "/admin/users/:id",
+      { preHandler: [authenticate, authorize([UserRole.ADMIN])] },
+      async (request, reply) => {
+        const { id } = request.params as any;
+
+        const user = await prisma.user.findUnique({ where: { id } });
+
+        if (!user || user.deletedAt) {
+          return reply.status(404).send({ message: "User not found" });
+        }
+
+        const data = await prisma.user.update({
+          where: { id },
+          data: { deletedAt: new Date() },
+        });
+
+        return success(data);
+      },
+    );
+
 }

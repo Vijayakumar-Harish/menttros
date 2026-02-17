@@ -6,6 +6,7 @@ import { proofRoutes } from "./modules/proof/proof.routes";
 import { mentorRoutes } from "./modules/mentor/mentor.routes";
 import { notificationRoutes } from "./modules/notification/notification.routes";
 import { API_V1 } from "./routes";
+import { adminRoutes } from "./modules/admin/admin.routes";
 
 export async function registerRoutes(app: FastifyInstance) {
   app.register(authRoutes, { prefix: API_V1 });
@@ -14,4 +15,5 @@ export async function registerRoutes(app: FastifyInstance) {
   app.register(proofRoutes, { prefix: API_V1 });
   app.register(mentorRoutes, { prefix: API_V1 });
   app.register(notificationRoutes, { prefix: API_V1 });
+  app.register(adminRoutes, { prefix: API_V1 });
 }

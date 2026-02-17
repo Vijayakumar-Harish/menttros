@@ -4,13 +4,13 @@ import { UserRole } from "@prisma/client";
 export class UserRepository {
   async findById(id: string) {
     return prisma.user.findUnique({
-      where: { id },
+      where: { id, deletedAt: null },
     });
   }
 
   async findByEmail(email: string) {
     return prisma.user.findUnique({
-      where: { email },
+      where: { email, deletedAt: null },
     });
   }
 

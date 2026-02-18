@@ -9,15 +9,24 @@ export async function adminRoutes(app: FastifyInstance) {
   app.get(
     "/admin/audit-logs",
     { preHandler: [authenticate, authorize([UserRole.ADMIN])] },
-    async () => {
-      return prisma.auditLog.findMany({
+    async (request) => {
+      const { page = 1, limit = 20 } = request.query as any;
+
+      const skip = (page - 1) * limit;
+
+      const logs = await prisma.auditLog.findMany({
+        skip,
+        take: limit,
         orderBy: { createdAt: "desc" },
         include: {
-          user: { select: { id: true, name: true, email: true } },
+          user: { select: { id: true, name: true, role: true } },
         },
       });
+
+      return success(logs);
     },
   );
+
     app.get(
       "/admin/stats",
       { preHandler: [authenticate, authorize([UserRole.ADMIN])] },

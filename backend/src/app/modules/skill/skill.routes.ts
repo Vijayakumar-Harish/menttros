@@ -6,10 +6,22 @@ import { getCache, setCache } from "../../../infrastructure/cache/simpleCache";
 import { success } from "../../../infrastructure/server/response";
 
 export async function skillRoutes(app: FastifyInstance) {
-  app.post("/skills", async (req) => {
+  app.post("/skills", async (req, reply) => {
     const { name, description } = req.body as any;
-    const skill= await prisma.skill.create({ data: { name, description } });
-    setCache("skills:all", null, 0);
+    try {
+      const data = await prisma.skill.create({ data: { name, description } });
+      setCache("skills:all", null, 0);
+      return success(data)
+    } catch (err: any) {
+      if(err.code === "P2002") {
+        return reply.status(400).send({
+          success: false,
+          message: "Skill already exists",
+        });
+      }
+      throw err;
+    }
+    
   });
 
   app.get("/skills", async (request) => {

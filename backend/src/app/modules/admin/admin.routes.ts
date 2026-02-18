@@ -71,5 +71,24 @@ export async function adminRoutes(app: FastifyInstance) {
         return success(data);
       },
     );
+    app.patch(
+      "/admin/users/:id/role",
+      { preHandler: [authenticate, authorize([UserRole.ADMIN])] },
+      async (request, reply) => {
+        const { id } = request.params as any;
+        const { role } = request.body as any;
+
+        if (!Object.values(UserRole).includes(role)) {
+          return reply.status(400).send({ message: "Invalid role" });
+        }
+
+        const user = await prisma.user.update({
+          where: { id },
+          data: { role },
+        });
+
+        return success(user);
+      },
+    );
 
 }
